@@ -83,7 +83,7 @@ void AegAC::control(const climate::ClimateCall &call) {
     // User requested fan mode change
     climate::ClimateFanMode fan_mode = *call.get_fan_mode();
 
-    this->fan_mode = optional(fan_mode);
+    this->fan_mode = fan_mode;
     this->publish_state();
   }
 

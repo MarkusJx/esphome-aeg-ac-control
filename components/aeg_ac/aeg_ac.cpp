@@ -45,6 +45,7 @@ climate::ClimateTraits AegAC::traits() {
 
   traits.set_supported_modes({
       climate::CLIMATE_MODE_OFF,
+      climate::CLIMATE_MODE_AUTO,
       climate::CLIMATE_MODE_DRY,
       climate::CLIMATE_MODE_COOL,
       climate::CLIMATE_MODE_FAN_ONLY,

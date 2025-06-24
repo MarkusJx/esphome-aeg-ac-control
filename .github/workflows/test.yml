@@ -1,0 +1,21 @@
+name: Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: configure
+      run: cmake . -B build
+    - name: make
+      run: cmake --build build
+    - name: make check
+      run: ./build/ir_test

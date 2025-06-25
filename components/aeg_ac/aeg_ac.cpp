@@ -129,11 +129,6 @@ void AegAC::control(const climate::ClimateCall &call) {
                                     climate::CLIMATE_SWING_VERTICAL);
     send_data(request.get_raw_data());
   }
-
-#if DEBUG_AC
-  ESP_LOGD("DEBUG", "Home A/C remote is in the following state:");
-  ESP_LOGD("DEBUG", "%s\n", ac.toString().c_str());
-#endif // DEBUG_AC
 }
 
 void AegAC::set_pin(InternalGPIOPin *pin) {

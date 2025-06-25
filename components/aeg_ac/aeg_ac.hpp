@@ -5,22 +5,20 @@
 #include "esphome/core/component.h"
 #include "esphome/core/gpio.h"
 
-namespace esphome {
-namespace aeg_ac {
-class AegAC : public Component, public climate::Climate {
-public:
-  void setup() override;
+namespace esphome::aeg_ac {
+  class AegAC : public Component, public climate::Climate {
+   public:
+    void setup() override;
 
-  climate::ClimateTraits traits() override;
+    climate::ClimateTraits traits() override;
 
-  void control(const climate::ClimateCall &call) override;
+    void control(const climate::ClimateCall &call) override;
 
-  void set_pin(InternalGPIOPin *pin);
+    void set_pin(InternalGPIOPin *pin);
 
-protected:
-  InternalGPIOPin *pin_;
-};
-} // namespace aeg_ac
-} // namespace esphome
+   protected:
+    InternalGPIOPin *pin_;
+  };
+}  // namespace esphome::aeg_ac
 
-#endif // AEG_AC_COMPONENT_HPP
+#endif  // AEG_AC_COMPONENT_HPP

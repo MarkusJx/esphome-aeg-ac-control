@@ -17,7 +17,7 @@ namespace esphome::aeg_ac {
     void set_pin(InternalGPIOPin *pin);
 
    protected:
-    InternalGPIOPin *pin_;
+    InternalGPIOPin *pin_ = nullptr;
   };
 }  // namespace esphome::aeg_ac
 

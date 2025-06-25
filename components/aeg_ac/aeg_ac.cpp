@@ -11,6 +11,15 @@ using namespace esphome;
 using namespace esphome::aeg_ac;
 
 void send_data(std::array<uint64_t, 2> data) {
+#if DEBUG_AC
+  std::stringstream stream;
+  stream << std::uppercase << std::hex << data[0] << ", " << data[1];
+  std::string raw_data(stream.str());
+
+  ESP_LOGD("DEBUG", "Sending raw data: {%s}", raw_data.c_str());
+  ESP_LOGD("DEBUG", "%s\n", ac.toString().c_str());
+#endif // DEBUG_AC
+
   IrSender.sendPulseDistanceWidthFromArray(38, 9000, 4500, 500, 1700, 500, 600,
                                            (IRRawDataType *)data.data(), 104,
                                            PROTOCOL_IS_LSB_FIRST, 0, 0);

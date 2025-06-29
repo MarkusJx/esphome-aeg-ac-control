@@ -4,7 +4,9 @@
 #include "esphome/components/climate/climate_mode.h"
 
 #define NO_LED_FEEDBACK_CODE
+#ifndef ESP8266
 #define SEND_PWM_BY_TIMER
+#endif // ESP8266
 #include <IRremote.hpp>
 #include <array>
 #include <sstream>

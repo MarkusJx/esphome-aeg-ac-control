@@ -1,4 +1,5 @@
 #include "aeg_ac.hpp"
+
 #include "aeg_ir.hpp"
 #include "esphome/components/climate/climate_mode.h"
 
@@ -6,11 +7,21 @@
 #define SEND_PWM_BY_TIMER
 #include <IRremote.hpp>
 #include <array>
+#include <sstream>
 
+#define DEBUG_AC 1
 using namespace esphome;
 using namespace esphome::aeg_ac;
 
 void send_data(std::array<uint64_t, 2> data) {
+#if DEBUG_AC
+  std::stringstream stream;
+  stream << std::uppercase << std::hex << data[0] << ", " << data[1];
+  std::string raw_data(stream.str());
+
+  ESP_LOGD("DEBUG", "Sending raw data: {%s}", raw_data.c_str());
+#endif  // DEBUG_AC
+
   IrSender.sendPulseDistanceWidthFromArray(38, 9000, 4500, 500, 1700, 500, 600,
                                            (IRRawDataType *)data.data(), 104,
                                            PROTOCOL_IS_LSB_FIRST, 0, 0);
@@ -18,19 +29,8 @@ void send_data(std::array<uint64_t, 2> data) {
 
 void AegAC::setup() {
   IrSender.begin(this->pin_->get_pin());
-  // Setup pins etc
-  // ac.begin();
-  //  AC model. This is only relevant in cases where the ir_company.h requires
-  //  a model (i.e. the signals change by model) ac.setModel(R_LT0541_HTA_A);
   delay(200);
-  // Setting up base conditions, so that the system doesn't send garbage to
-  // begin with
-  // ac.setTemp(24);
-  // ac.setFan(kHitachiAc264FanAuto);
-  // ac.setSwingV(true);
-  // ac.off();
-  // Setting up base conditions transferred to Home Assistant, so that there's
-  // no garbage at initialization
+
   this->mode = mode;
   this->fan_mode = climate::CLIMATE_FAN_AUTO;
   this->swing_mode = climate::CLIMATE_SWING_VERTICAL;
@@ -45,8 +45,9 @@ climate::ClimateTraits AegAC::traits() {
 
   traits.set_supported_modes({
       climate::CLIMATE_MODE_OFF,
+      climate::CLIMATE_MODE_AUTO,
       climate::CLIMATE_MODE_DRY,
-      climate::CLIMATE_MODE_COOL,
+      //climate::CLIMATE_MODE_COOL, Not supported yet
       climate::CLIMATE_MODE_FAN_ONLY,
   });
 
@@ -83,8 +84,7 @@ void AegAC::control(const climate::ClimateCall &call) {
     // User requested fan mode change
     climate::ClimateFanMode fan_mode = *call.get_fan_mode();
 
-    this->fan_mode = optional(fan_mode);
-    this->publish_state();
+    this->fan_mode = fan_mode;
   }
 
   if (call.get_swing_mode().has_value()) {
@@ -92,7 +92,6 @@ void AegAC::control(const climate::ClimateCall &call) {
     climate::ClimateSwingMode swing_mode = *call.get_swing_mode();
 
     this->swing_mode = swing_mode;
-    this->publish_state();
   }
 
   // Code for what to do when the temperature is changed on the dashboard
@@ -101,28 +100,41 @@ void AegAC::control(const climate::ClimateCall &call) {
     float temp = *call.get_target_temperature();
 
     this->target_temperature = temp;
-    this->publish_state();
   }
 
   if (mode == climate::CLIMATE_MODE_OFF) {
-    // TODO
+    // Use fixed off command for auto, 21°, no swing
+    send_data({0xA000E06FC3, 0xB705000000});
   } else if (mode == climate::CLIMATE_MODE_DRY) {
-    // TODO
+    this->fan_mode = climate::ClimateFanMode::CLIMATE_FAN_LOW;
+    aeg_ir::aeg_dry_ir_request request(this->swing_mode ==
+                                       climate::CLIMATE_SWING_VERTICAL);
+    send_data(request.get_raw_data());
   } else if (mode == climate::CLIMATE_MODE_COOL) {
     // TODO
   } else if (mode == climate::CLIMATE_MODE_FAN_ONLY) {
-    // TODO
+    aeg_ir::fan_mode mode;
+    if (this->fan_mode == climate::ClimateFanMode::CLIMATE_FAN_HIGH) {
+      mode = aeg_ir::fan_mode::FAN_HIGH;
+    } else if (this->fan_mode == climate::ClimateFanMode::CLIMATE_FAN_MEDIUM) {
+      mode = aeg_ir::fan_mode::FAN_MID;
+    } else {
+      mode = aeg_ir::fan_mode::FAN_LOW;
+      this->fan_mode = climate::ClimateFanMode::CLIMATE_FAN_LOW;
+    }
+
+    aeg_ir::aeg_fan_ir_request request(
+        mode, this->swing_mode == climate::CLIMATE_SWING_VERTICAL);
+    send_data(request.get_raw_data());
   } else if (mode == climate::CLIMATE_MODE_AUTO) {
-    aeg_auto_ir_request request(this->target_temperature,
-                                this->swing_mode ==
-                                    climate::CLIMATE_SWING_VERTICAL);
+    this->fan_mode = climate::ClimateFanMode::CLIMATE_FAN_AUTO;
+    aeg_ir::aeg_auto_ir_request request(
+        this->target_temperature,
+        this->swing_mode == climate::CLIMATE_SWING_VERTICAL);
     send_data(request.get_raw_data());
   }
 
-#if DEBUG_AC
-  ESP_LOGD("DEBUG", "Home A/C remote is in the following state:");
-  ESP_LOGD("DEBUG", "%s\n", ac.toString().c_str());
-#endif // DEBUG_AC
+  this->publish_state();
 }
 
 void AegAC::set_pin(InternalGPIOPin *pin) {

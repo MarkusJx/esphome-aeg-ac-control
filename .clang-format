@@ -1,0 +1,4 @@
+BasedOnStyle: Google
+NamespaceIndentation: All
+AllowShortBlocksOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: Empty

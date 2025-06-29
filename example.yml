@@ -1,0 +1,44 @@
+esphome:
+  name: aeg-ac-control
+  friendly_name: AEG AC Control
+  libraries:
+    - arduino-irremote/IRremote
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+#    key: QWxpY2UncyBBZHZlbnR1cmUgaW4gV29uZGVsYW5kLg==
+
+ota:
+  - platform: esphome
+    password: <password>
+
+wifi:
+  ssid: <ssid>
+  password: <password>
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "AEG AC Control Fallback Hotspot"
+    password: <password>
+
+#captive_portal:
+
+external_components:
+  - source:
+      type: local
+      path: ./components
+    components: [aeg_ac]
+
+climate:
+  - platform: aeg_ac
+    name: AEG AC
+    pin: GPIO4

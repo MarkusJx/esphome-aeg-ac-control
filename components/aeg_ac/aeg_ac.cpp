@@ -36,7 +36,7 @@ void AegAC::setup() {
   this->mode = mode;
   this->fan_mode = climate::CLIMATE_FAN_AUTO;
   this->swing_mode = climate::CLIMATE_SWING_VERTICAL;
-  this->target_temperature = 24;
+  this->target_temperature = 19;
   this->publish_state();
 }
 

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <sys/types.h>
 
 using namespace aeg_ir;
 

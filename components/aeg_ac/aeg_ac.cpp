@@ -116,13 +116,13 @@ void AegAC::control(const climate::ClimateCall &call) {
     // TODO
   } else if (mode == climate::CLIMATE_MODE_FAN_ONLY) {
     aeg_ir::fan_mode mode;
-    if (this->fan_mode == climate::ClimateFanMode::CLIMATE_FAN_HIGH) {
-      mode = aeg_ir::fan_mode::FAN_HIGH;
+    if (this->fan_mode == climate::ClimateFanMode::CLIMATE_FAN_LOW) {
+      mode = aeg_ir::fan_mode::FAN_LOW;
     } else if (this->fan_mode == climate::ClimateFanMode::CLIMATE_FAN_MEDIUM) {
       mode = aeg_ir::fan_mode::FAN_MID;
     } else {
-      mode = aeg_ir::fan_mode::FAN_LOW;
-      this->fan_mode = climate::ClimateFanMode::CLIMATE_FAN_LOW;
+      mode = aeg_ir::fan_mode::FAN_HIGH;
+      this->fan_mode = climate::ClimateFanMode::CLIMATE_FAN_HIGH;
     }
 
     aeg_ir::aeg_fan_ir_request request(

@@ -47,7 +47,7 @@ climate::ClimateTraits AegAC::traits() {
 
   traits.set_supported_modes({
       climate::CLIMATE_MODE_OFF,
-      climate::CLIMATE_MODE_AUTO,
+      climate::CLIMATE_MODE_HEAT_COOL,
       climate::CLIMATE_MODE_DRY,
       //climate::CLIMATE_MODE_COOL, Not supported yet
       climate::CLIMATE_MODE_FAN_ONLY,
@@ -128,7 +128,7 @@ void AegAC::control(const climate::ClimateCall &call) {
     aeg_ir::aeg_fan_ir_request request(
         mode, this->swing_mode == climate::CLIMATE_SWING_VERTICAL);
     send_data(request.get_raw_data());
-  } else if (mode == climate::CLIMATE_MODE_AUTO) {
+  } else if (mode == climate::CLIMATE_MODE_HEAT_COOL) {
     this->fan_mode = climate::ClimateFanMode::CLIMATE_FAN_AUTO;
     aeg_ir::aeg_auto_ir_request request(
         this->target_temperature,

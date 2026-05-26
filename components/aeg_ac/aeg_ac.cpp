@@ -42,8 +42,8 @@ void AegAC::setup() {
 
 climate::ClimateTraits AegAC::traits() {
   auto traits = climate::ClimateTraits();
-  traits.set_supports_current_temperature(false);
-  traits.set_supports_two_point_target_temperature(false);
+  traits.clear_feature_flags(ClimateFeature::CLIMATE_SUPPORTS_CURRENT_TEMPERATURE);
+  traits.clear_feature_flags(ClimateFeature::CLIMATE_SUPPORTS_TWO_POINT_TARGET_TEMPERATURE);
 
   traits.set_supported_modes({
       climate::CLIMATE_MODE_OFF,
